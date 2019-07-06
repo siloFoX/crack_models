@@ -38,42 +38,44 @@ class DataCollect :
             raw_data with no processed data - but data's shape is (num_of_data, 250, 250)
         '''
 
-        noise_data = []
-        original_data = []
-        
-        for i in range(self.num_of_data) :
-            noise_path_tmp = self.noise_path + self.noise_list[i]
-            original_path_tmp = self.original_path + self.original_list[i]
+        if not self.status["collected"] :
+
+            noise_data = []
+            original_data = []
             
-            noise_tmp = cv2.imread(noise_path_tmp, cv2.IMREAD_GRAYSCALE)
-            original_tmp = cv2.imread(original_path_tmp, cv2.IMREAD_GRAYSCALE)
-            
-            noise_tmp_np = np.array(noise_tmp).astype(np.float32)
-            original_tmp_np = np.array(original_tmp).astype(np.float32)
-            
-            if(noise_tmp_np.shape[0] != 250 or noise_tmp_np.shape[1] != 250) :
-                noise_tmp = cv2.resize(noise_tmp, dsize = (250, 250), interpolation = cv2.INTER_AREA)
-                noise_tmp_np = np.array(noise_tmp).astype(np.float32)
+            for i in range(self.num_of_data) :
+                noise_path_tmp = self.noise_path + self.noise_list[i]
+                original_path_tmp = self.original_path + self.original_list[i]
                 
-            if(original_tmp_np.shape[0] != 250 or original_tmp_np.shape[1] != 250) :
-                original_tmp = cv2.resize(original_tmp, dsize = (250, 250), interpolation = cv2.INTER_AREA)
+                noise_tmp = cv2.imread(noise_path_tmp, cv2.IMREAD_GRAYSCALE)
+                original_tmp = cv2.imread(original_path_tmp, cv2.IMREAD_GRAYSCALE)
+                
+                noise_tmp_np = np.array(noise_tmp).astype(np.float32)
                 original_tmp_np = np.array(original_tmp).astype(np.float32)
                 
-            noise_tmp = noise_tmp_np.tolist()
-            original_tmp = original_tmp_np.tolist()
+                if(noise_tmp_np.shape[0] != 250 or noise_tmp_np.shape[1] != 250) :
+                    noise_tmp = cv2.resize(noise_tmp, dsize = (250, 250), interpolation = cv2.INTER_AREA)
+                    noise_tmp_np = np.array(noise_tmp).astype(np.float32)
+                    
+                if(original_tmp_np.shape[0] != 250 or original_tmp_np.shape[1] != 250) :
+                    original_tmp = cv2.resize(original_tmp, dsize = (250, 250), interpolation = cv2.INTER_AREA)
+                    original_tmp_np = np.array(original_tmp).astype(np.float32)
+                    
+                noise_tmp = noise_tmp_np.tolist()
+                original_tmp = original_tmp_np.tolist()
+                
+                noise_data.append(noise_tmp)
+                original_data.append(original_tmp)
             
-            noise_data.append(noise_tmp)
-            original_data.append(original_tmp)
+            noise_data = np.array(noise_data)
+            original_data = np.array(original_data)
+            
+            self.raw_noise_data = noise_data
+            self.raw_original_data = original_data
+            
+            self.status["collected"] = True
         
-        noise_data = np.array(noise_data)
-        original_data = np.array(original_data)
-        
-        self.raw_noise_data = noise_data
-        self.raw_original_data = original_data
-        
-        self.status["collected"] = True
-        
-        return noise_data, original_data
+        return self.raw_noise_data, self.raw_original_data
     
     def preprocessed_set (self) :
         '''
@@ -85,19 +87,21 @@ class DataCollect :
         else :
             raw_noise = self.raw_noise_data
             raw_original = self.raw_original_data
+
+        if not self.status["processed"] :
+                
+            raw_noise /= 255.
+            raw_original /= 255.
             
-        raw_noise /= 255.
-        raw_original /= 255.
-        
-        processed_noise = np.reshape(raw_noise, newshape = (-1, 250, 250, 1))
-        processed_original = np.reshape(raw_original, newshape = (-1, 250, 250, 1))
-        
-        self.processed_noise = processed_noise
-        self.processed_original = processed_original
-        
-        self.status["processed"] = True
-        
-        return processed_noise, processed_original
+            processed_noise = np.reshape(raw_noise, newshape = (-1, 250, 250, 1))
+            processed_original = np.reshape(raw_original, newshape = (-1, 250, 250, 1))
+            
+            self.processed_noise = processed_noise
+            self.processed_original = processed_original
+            
+            self.status["processed"] = True
+            
+        return self.processed_noise, self.processed_original
     
     def sample_show (self, sample_num = 0) :
         '''
