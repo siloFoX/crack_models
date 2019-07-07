@@ -49,7 +49,7 @@ class DataAugmentation :
         for datum in tmp :
             data.append(datum)
 
-        return np.array(data)
+        return np.array(data, dtype = np.float32)
 
     def rotated_data (self) :
 
