@@ -5,7 +5,7 @@ from tensorflow.keras import layers
 
 class Models :
     '''
-        generator & discriminator model
+        generator & discriminator model and loss
     '''
     def __init__ (self, call_last_weight = False) :
         self.call_last_weight = call_last_weight

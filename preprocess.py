@@ -67,8 +67,8 @@ class DataCollect :
                 noise_data.append(noise_tmp)
                 original_data.append(original_tmp)
             
-            noise_data = np.array(noise_data)
-            original_data = np.array(original_data)
+            noise_data = np.array(noise_data).astype(np.float32)
+            original_data = np.array(original_data).astype(np.float32)
             
             self.raw_noise_data = noise_data
             self.raw_original_data = original_data
@@ -90,11 +90,11 @@ class DataCollect :
 
         if not self.status["processed"] :
                 
-            raw_noise /= 255.
-            raw_original /= 255.
+            self.preprocessing(raw_noise)
+            self.preprocessing(raw_original)
             
-            processed_noise = np.reshape(raw_noise, newshape = (-1, 250, 250, 1))
-            processed_original = np.reshape(raw_original, newshape = (-1, 250, 250, 1))
+            processed_noise = np.reshape(raw_noise, newshape = (-1, 250, 250, 1)).astype(np.float32)
+            processed_original = np.reshape(raw_original, newshape = (-1, 250, 250, 1)).astype(np.float32)
             
             self.processed_noise = processed_noise
             self.processed_original = processed_original
@@ -121,3 +121,10 @@ class DataCollect :
         cv2.imshow("sample_show", self.processed_original[sample_num])
         cv2.waitKey(0)
         cv2.destroyAllWindows() 
+
+    def preprocessing (self, data) :
+        for datum in data :
+            datum -= np.mean(datum)
+            datum /= np.std(datum)
+
+        return data
