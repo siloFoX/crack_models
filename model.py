@@ -1,9 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from data_augmentation import DataAugmentation
-
 import tensorflow as tf
-import numpy as np
 from tensorflow.keras import layers
 
 class Models :
@@ -30,7 +27,7 @@ class Models :
 
     def make_discriminator_model(self) :
         model = tf.keras.Sequential()
-        model.add(layers.Conv2D(64, (5, 5), strides = (2, 2), padding = 'same', input_shape = [280, 280, 1]))
+        model.add(layers.Conv2D(64, (5, 5), strides = (2, 2), padding = 'same', input_shape = [250, 250, 1]))
         model.add(layers.LeakyReLU())
         model.add(layers.Dropout(0.3))
 
